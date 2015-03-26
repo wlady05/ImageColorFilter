@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane dividerPositions="0.7" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="site.imagetransform.SceneController">
+   <items>
+      <ScrollPane fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="200.0" prefWidth="200.0">
+         <content>
+            <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
+         </content>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </ScrollPane>
+      <Accordion>
+        <panes>
+          <TitledPane animated="false" text="untitled 1" />
+          <TitledPane animated="false" text="Color">
+               <content>
+                  <GridPane>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Red">
+                           <padding>
+                              <Insets right="12.0" />
+                           </padding>
+                        </Label>
+                        <Slider fx:id="colorSliderRed" blockIncrement="5.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" value="100.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                           <padding>
+                              <Insets bottom="12.0" />
+                           </padding>
+                        </Slider>
+                        <Label fx:id="colorValueRed" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                           <padding>
+                              <Insets right="2.0" />
+                           </padding></Label>
+                        <Label text="Green" GridPane.rowIndex="2">
+                           <padding>
+                              <Insets right="12.0" />
+                           </padding>
+                        </Label>
+                        <Slider fx:id="colorSliderGreen" blockIncrement="5.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" value="100.0" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                           <padding>
+                              <Insets bottom="12.0" />
+                           </padding>
+                        </Slider>
+                        <Label fx:id="colorValueGreen" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                           <padding>
+                              <Insets right="2.0" />
+                           </padding>
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin></Label>
+                        <Label text="Blue" GridPane.rowIndex="4">
+                           <padding>
+                              <Insets right="12.0" />
+                           </padding>
+                        </Label>
+                        <Slider fx:id="colorSliderBlue" blockIncrement="5.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" value="100.0" GridPane.columnSpan="2" GridPane.rowIndex="5">
+                           <padding>
+                              <Insets bottom="12.0" />
+                           </padding>
+                        </Slider>
+                        <Label fx:id="colorValueBlue" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4">
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                           <padding>
+                              <Insets right="2.0" />
+                           </padding></Label>
+                     </children>
+                  </GridPane>
+               </content>
+            </TitledPane>
+        </panes>
+      </Accordion>
+   </items>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+   </padding>
+</SplitPane>
