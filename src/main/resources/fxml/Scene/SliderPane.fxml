@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="site.imagetransform.SliderPaneController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" />
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="NEVER" />
+        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="NEVER" />
+        <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" vgrow="NEVER" />
+    </rowConstraints>
+    <children>
+        <BarChart fx:id="histogramChart" alternativeRowFillVisible="false" barGap="0.0" categoryGap="0.0" horizontalGridLinesVisible="false" legendVisible="false" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="100.0" verticalGridLinesVisible="false" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
+            <xAxis>
+                <CategoryAxis prefHeight="3.0" side="BOTTOM" tickLabelGap="0.0" tickLabelsVisible="false" tickLength="0.0" tickMarkVisible="false" />
+            </xAxis>
+            <yAxis>
+                <NumberAxis minorTickCount="0" minorTickLength="0.0" prefWidth="3.0" side="LEFT" tickLabelGap="0.0" tickLabelsVisible="false" tickLength="0.0" tickMarkVisible="false" tickUnit="0.0" />
+            </yAxis>
+        </BarChart>
+
+        <Label fx:id="componentName" text="Name" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets left="3.0" />
+         </GridPane.margin>
+        </Label>
+        <Label fx:id="componentValue" text="Value" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+            <font>
+                <Font size="10.0" />
+            </font>
+         <GridPane.margin>
+            <Insets right="3.0" />
+         </GridPane.margin>
+        </Label>
+        <Slider fx:id="componentSlider" blockIncrement="5.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" value="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <padding>
+                <Insets bottom="3.0" right="3.0" />
+            </padding>
+        </Slider>
+    </children>
+</GridPane>
