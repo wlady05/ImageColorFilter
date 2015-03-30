@@ -4,25 +4,33 @@
 
 package site.imagetransform;
 
+import java.io.File;
+import java.io.IOException;
+
 import java.net.URL;
 
 import java.util.ResourceBundle;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javafx.application.Platform;
+
 import javafx.beans.value.ObservableValue;
+
+import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.Parent;
+
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 
-import javafx.util.converter.NumberStringConverter;
+import javafx.stage.FileChooser;
 
 /**
  * Scene Controller class.
@@ -30,26 +38,33 @@ import javafx.util.converter.NumberStringConverter;
  * @author wlady
  */
 public class SceneController implements Initializable {
-    @FXML
-    private ImageView imageView;
+    private static final int BUCKET_COUNT = 255;
 
     @FXML
-    private Slider colorSliderRed;
-    @FXML
-    private Label colorValueRed;
+    private Parent mainView;
 
     @FXML
-    private Slider colorSliderGreen;
-    @FXML
-    private Label colorValueGreen;
+    private TextField imageWidth;
 
     @FXML
-    private Slider colorSliderBlue;
-    @FXML
-    private Label colorValueBlue;
+    private TextField imageHeight;
 
-    private Image originalImage;
-    private WritableImage transformedImage;
+    @FXML
+    private CheckBox scaleImage;
+
+    @FXML
+    private ImagePaneController imagePaneController;
+
+    @FXML
+    private SliderPaneController componentRedController;
+
+    @FXML
+    private SliderPaneController componentGreenController;
+
+    @FXML
+    private SliderPaneController componentBlueController;
+
+    private AtomicInteger sliderChange = new AtomicInteger();
 
     public SceneController() {
         // Empty
@@ -57,67 +72,143 @@ public class SceneController implements Initializable {
 
     /**
      * Initializes the controller class.
-     * @param url
-     * @param rb
+     *
+     * @param location
+     * @param resources
      */
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        NumberStringConverter colorValueConverter = new NumberStringConverter("0.00");
+    public void initialize(URL location, ResourceBundle resources) {
+        componentRedController.getName().setText("Red");
+        componentGreenController.getName().setText("Green");
+        componentBlueController.getName().setText("Blue");
 
-        colorValueRed.textProperty().bindBidirectional(colorSliderRed.valueProperty(), colorValueConverter);
-        colorValueGreen.textProperty().bindBidirectional(colorSliderGreen.valueProperty(), colorValueConverter);
-        colorValueBlue.textProperty().bindBidirectional(colorSliderBlue.valueProperty(), colorValueConverter);
-
-        colorSliderRed.valueProperty().addListener(
+        componentRedController.getSlider().valueProperty().addListener(
                 (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImage());
 
-        colorSliderGreen.valueProperty().addListener(
+        componentGreenController.getSlider().valueProperty().addListener(
                 (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImage());
 
-        colorSliderBlue.valueProperty().addListener(
+        componentBlueController.getSlider().valueProperty().addListener(
                 (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImage());
+
+        scaleImage.selectedProperty().addListener(
+                (ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> scaleImage());
 
         setImage(new Image(getClass().getResourceAsStream("/image.jpg")));
     }
 
-    public void setImage(Image image) {
-        originalImage = image;
+    @FXML
+    private void openImage(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
 
-        int width = (int) originalImage.getWidth();
-        int height = (int) originalImage.getHeight();
+        fileChooser.setTitle("Open Image");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.gif", "*.png"));
 
-        transformedImage = new WritableImage(originalImage.getPixelReader(), width, height);
+        File file = fileChooser.showOpenDialog(mainView.getScene().getWindow());
 
-        imageView.imageProperty().set(transformedImage);
-    }    
-
-    public void updateImage() {
-        final double redPercent = colorSliderRed.getValue() / 100.0;
-        final double greenPercent = colorSliderGreen.getValue() / 100.0;
-        final double bluePercent = colorSliderBlue.getValue() / 100.0;
-
-        final int width = (int) transformedImage.getWidth();
-        final int height = (int) transformedImage.getHeight();
-
-        final PixelReader pixelReader = originalImage.getPixelReader();
-        final PixelWriter pixelWriter = transformedImage.getPixelWriter();
-
-        for (int y= 0 ; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int argb = pixelReader.getArgb(x, y);
-
-                int red = (argb >> 16) & 0x00ff;
-                int green = (argb >> 8) & 0x00ff;
-                int blue = argb & 0x00ff;
-
-                red = (int) ((double) red * redPercent);
-                green = (int) ((double) green * greenPercent);
-                blue = (int) ((double) blue * bluePercent);
-
-                argb = (argb & 0xff000000) | (red << 16) | (green << 8) | blue;
-
-                pixelWriter.setArgb(x, y, argb);
+        if (file != null) {
+            try {
+                setImage(new Image(file.toURI().toURL().toString(), false));
+            } catch (IOException ioe) {
+                // Ignore this one ...
             }
         }
+    }
+
+    public void setImage(Image image) {
+        imagePaneController.setImage(image);
+
+        int w = 0;
+        int h = 0;
+
+        image = imagePaneController.getOriginalImage();
+
+        if (image != null) {
+            w = (int) image.getWidth();
+            h = (int) image.getHeight();
+        }
+
+        imageWidth.setText(w + " px");
+        imageHeight.setText(h + " px");
+
+        updateImage();
+    }
+
+    /**
+     * Updates the image and histogram charts, based on sliders values.
+     */
+    public void updateImage() {
+        final double rPercent = componentRedController.getSlider().getValue() / 100.0;
+        final double gPercent = componentGreenController.getSlider().getValue() / 100.0;
+        final double bPercent = componentBlueController.getSlider().getValue() / 100.0;
+
+        imagePaneController.updateImage(rPercent, gPercent, bPercent);
+
+        updateHistogramsLater();
+    }
+
+    /**
+     * Updates the histograms.
+     *
+     * <p>
+     * This method tries to skip some updates, if there are multiple update requests.
+     */
+    public void updateHistogramsLater() {
+        sliderChange.incrementAndGet();
+
+        Platform.runLater(() -> {
+            if (sliderChange.decrementAndGet() == 0) {
+                updateHistograms();
+            }
+        });
+    }
+
+    public void updateHistograms() {
+        int[] histogramRed = new int[BUCKET_COUNT];
+        int[] histogramGreen = new int[BUCKET_COUNT];
+        int[] histogramBlue = new int[BUCKET_COUNT];
+
+        for (int i = 0; i < BUCKET_COUNT; i++) {
+            histogramRed[i] = 0;
+            histogramGreen[i] = 0;
+            histogramBlue[i] = 0;
+        }
+
+        Image image = imagePaneController.getTransformedImage();
+
+        if (image != null) {
+            final PixelReader pixelReader = image.getPixelReader();
+
+            final int width = (int) image.getWidth();
+            final int height = (int) image.getHeight();
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int argb = pixelReader.getArgb(x, y);
+
+                    int r = (argb >> 16) & 0x00ff;
+                    int g = (argb >>  8) & 0x00ff;
+                    int b = (argb      ) & 0x00ff;
+
+                    if (r > 0) {
+                        histogramRed[r - 1]++;
+                    }
+                    if (g > 0) {
+                        histogramGreen[g - 1]++;
+                    }
+                    if (b > 0) {
+                        histogramBlue[b - 1]++;
+                    }
+                }
+            }
+        }
+
+        componentRedController.updateHistogramChart(histogramRed);
+        componentGreenController.updateHistogramChart(histogramGreen);
+        componentBlueController.updateHistogramChart(histogramBlue);
+    }
+
+    public void scaleImage() {
+        imagePaneController.scaleImage(scaleImage.isSelected());
     }
 }
