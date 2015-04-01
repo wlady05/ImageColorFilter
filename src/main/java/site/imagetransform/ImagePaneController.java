@@ -32,14 +32,14 @@ public class ImagePaneController implements Initializable {
     private ImageView imageView;
 
     /**
-     * The original, unmodified, image.
+     * The original image.
      */
     private Image originalImage;
 
     /**
      * The altered image.
      */
-    private WritableImage transformedImage;
+    private Image transformedImage;
 
     public ImagePaneController() {
         // Empty
@@ -75,11 +75,21 @@ public class ImagePaneController implements Initializable {
 
         if (width > 0 && height > 0) {
             originalImage = image;
-            transformedImage = new WritableImage(originalImage.getPixelReader(), width, height);
         } else {
             originalImage = null;
-            transformedImage = null;
         }
+
+        updateImage(originalImage);
+    }
+
+    /**
+     * Updates the image view with altered image.
+     *
+     * @param image
+     * is the altered image
+     */
+    public void updateImage(Image image) {
+        transformedImage = image;
 
         imageView.setImage(transformedImage);
     }
@@ -92,15 +102,17 @@ public class ImagePaneController implements Initializable {
      * @param bluePercent
      */
     public void updateImage(final double redPercent, final double greenPercent, final double bluePercent) {
-        if (transformedImage == null) {
+        if (originalImage == null) {
             return ;
         }
 
-        final int width = (int) transformedImage.getWidth();
-        final int height = (int) transformedImage.getHeight();
+        final int width = (int) originalImage.getWidth();
+        final int height = (int) originalImage.getHeight();
+
+        WritableImage bufferImage = new WritableImage(width, height);
 
         final PixelReader pixelReader = originalImage.getPixelReader();
-        final PixelWriter pixelWriter = transformedImage.getPixelWriter();
+        final PixelWriter pixelWriter = bufferImage.getPixelWriter();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -119,6 +131,8 @@ public class ImagePaneController implements Initializable {
                 pixelWriter.setArgb(x, y, argb);
             }
         }
+
+        updateImage(bufferImage);
     }
 
     public void scaleImage(boolean scale) {

@@ -68,9 +68,9 @@ public class SceneController implements Initializable {
     private SliderPaneController componentBlueController;
 
     /**
-     * Used to update histograms with some delay, so that the UI is more responsive.
+     * Used to schedule tasks for execution with some delay, so that the UI is more responsive.
      */
-    private final ScheduledExecutorService updateHistogramsService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     /**
      * Used to update histograms with some delay, so that the UI is more responsive.
@@ -82,7 +82,7 @@ public class SceneController implements Initializable {
     }
 
     public void stop() {
-        updateHistogramsService.shutdownNow();
+        scheduledExecutorService.shutdownNow();
     }
 
     /**
@@ -170,12 +170,12 @@ public class SceneController implements Initializable {
             updateHistogramsTask.cancel(false);
         }
 
-        updateHistogramsTask = updateHistogramsService.schedule(() -> updateHistograms(), 150, TimeUnit.MILLISECONDS);
+        updateHistogramsTask = scheduledExecutorService.schedule(this::updateHistograms, 150, TimeUnit.MILLISECONDS);
     }
 
     public void updateHistograms() {
         if (! Platform.isFxApplicationThread()) {
-            Platform.runLater(() -> updateHistograms());
+            Platform.runLater(this::updateHistograms);
             return ;
         }
 
