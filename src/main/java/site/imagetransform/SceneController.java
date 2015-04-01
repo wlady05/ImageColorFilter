@@ -11,7 +11,10 @@ import java.net.URL;
 
 import java.util.ResourceBundle;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javafx.application.Platform;
 
@@ -64,10 +67,22 @@ public class SceneController implements Initializable {
     @FXML
     private SliderPaneController componentBlueController;
 
-    private AtomicInteger sliderChange = new AtomicInteger();
+    /**
+     * Used to update histograms with some delay, so that the UI is more responsive.
+     */
+    private final ScheduledExecutorService updateHistogramsService = Executors.newSingleThreadScheduledExecutor();
+
+    /**
+     * Used to update histograms with some delay, so that the UI is more responsive.
+     */
+    private ScheduledFuture<?> updateHistogramsTask = null;
 
     public SceneController() {
         // Empty
+    }
+
+    public void stop() {
+        updateHistogramsService.shutdownNow();
     }
 
     /**
@@ -148,22 +163,22 @@ public class SceneController implements Initializable {
     }
 
     /**
-     * Updates the histograms.
-     *
-     * <p>
-     * This method tries to skip some updates, if there are multiple update requests.
+     * Debounce calls to updateHistogram() method.
      */
     public void updateHistogramsLater() {
-        sliderChange.incrementAndGet();
+        if (updateHistogramsTask != null && ! updateHistogramsTask.isDone()) {
+            updateHistogramsTask.cancel(false);
+        }
 
-        Platform.runLater(() -> {
-            if (sliderChange.decrementAndGet() == 0) {
-                updateHistograms();
-            }
-        });
+        updateHistogramsTask = updateHistogramsService.schedule(() -> updateHistograms(), 150, TimeUnit.MILLISECONDS);
     }
 
     public void updateHistograms() {
+        if (! Platform.isFxApplicationThread()) {
+            Platform.runLater(() -> updateHistograms());
+            return ;
+        }
+
         int[] histogramRed = new int[BUCKET_COUNT];
         int[] histogramGreen = new int[BUCKET_COUNT];
         int[] histogramBlue = new int[BUCKET_COUNT];

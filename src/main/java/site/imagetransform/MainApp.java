@@ -13,16 +13,29 @@ import javafx.stage.Stage;
 import javafx.application.Application;
 
 public class MainApp extends Application {
+    private SceneController sceneController;
+
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
 
-        Scene scene = new Scene(root);
+        Parent root = fxmlLoader.load();
+
+        sceneController = fxmlLoader.getController();
+
+        Scene scene;
+
+        scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
 
         stage.setTitle("JavaFX and Maven");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        sceneController.stop();
     }
 
     /**
