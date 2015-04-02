@@ -2,7 +2,7 @@
  * (c) 2015 wlady
  */
 
-package site.imagetransform;
+package wlady.imagecolorfilter.ui;
 
 import java.io.File;
 import java.io.IOException;

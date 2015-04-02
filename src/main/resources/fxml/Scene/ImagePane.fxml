@@ -6,7 +6,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane fx:id="imageContainer" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="site.imagetransform.ImagePaneController">
+<ScrollPane fx:id="imageContainer" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="200.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="wlady.imagecolorfilter.ui.ImagePaneController">
     <content>
         <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
             <columnConstraints>
