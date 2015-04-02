@@ -21,14 +21,14 @@ import javafx.scene.control.Slider;
 
 import javafx.util.converter.NumberStringConverter;
 
+import wlady.imagecolorfilter.ImageColorHistogram;
+
 /**
  * FXML Controller class
  *
  * @author wlady
  */
 public class SliderPaneController implements Initializable {
-    private static final int BUCKET_COUNT = 255;
-
     @FXML
     private BarChart<String,Number> histogramChart;
 
@@ -69,7 +69,7 @@ public class SliderPaneController implements Initializable {
         series = new XYChart.Series<>();
         seriesData = series.getData();
 
-        for (int i = 1; i <= BUCKET_COUNT; i++)  {
+        for (int i = 1; i <= ImageColorHistogram.BUCKET_COUNT; i++)  {
             String id = String.valueOf(i);
 
             seriesData.add(new XYChart.Data(id, 0));
@@ -79,7 +79,7 @@ public class SliderPaneController implements Initializable {
     }
 
     public void updateHistogramChart(int[] histogram) {
-        for (int i = 0; i < BUCKET_COUNT; i++)  {
+        for (int i = 0; i < ImageColorHistogram.BUCKET_COUNT; i++)  {
             seriesData.get(i).setYValue(histogram[i]);
         }
     }

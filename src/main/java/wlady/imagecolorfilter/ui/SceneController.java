@@ -31,9 +31,11 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 
 import javafx.stage.FileChooser;
+
+import wlady.imagecolorfilter.ImageColorFilter;
+import wlady.imagecolorfilter.ImageColorHistogram;
 
 /**
  * Scene Controller class.
@@ -41,8 +43,6 @@ import javafx.stage.FileChooser;
  * @author wlady
  */
 public class SceneController implements Initializable {
-    private static final int BUCKET_COUNT = 255;
-
     @FXML
     private Parent mainView;
 
@@ -73,9 +73,9 @@ public class SceneController implements Initializable {
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     /**
-     * Used to update histograms with some delay, so that the UI is more responsive.
+     * Used to update image with some delay, so that the UI is more responsive.
      */
-    private ScheduledFuture<?> updateHistogramsTask = null;
+    private ScheduledFuture<?> updateImageTask = null;
 
     public SceneController() {
         // Empty
@@ -98,13 +98,13 @@ public class SceneController implements Initializable {
         componentBlueController.getName().setText("Blue");
 
         componentRedController.getSlider().valueProperty().addListener(
-                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImage());
+                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
 
         componentGreenController.getSlider().valueProperty().addListener(
-                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImage());
+                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
 
         componentBlueController.getSlider().valueProperty().addListener(
-                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImage());
+                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
 
         scaleImage.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> scaleImage());
@@ -131,7 +131,7 @@ public class SceneController implements Initializable {
     }
 
     public void setImage(Image image) {
-        imagePaneController.setImage(image);
+        imagePaneController.setOriginalImage(image);
 
         int w = 0;
         int h = 0;
@@ -150,77 +150,49 @@ public class SceneController implements Initializable {
     }
 
     /**
-     * Updates the image and histogram charts, based on sliders values.
+     * Debounce calls to updateImage() method.
      */
-    public void updateImage() {
-        final double rPercent = componentRedController.getSlider().getValue() / 100.0;
-        final double gPercent = componentGreenController.getSlider().getValue() / 100.0;
-        final double bPercent = componentBlueController.getSlider().getValue() / 100.0;
+    public void updateImageLater() {
+        if (updateImageTask != null && ! updateImageTask.isDone()) {
+            updateImageTask.cancel(false);
+        }
 
-        imagePaneController.updateImage(rPercent, gPercent, bPercent);
-
-        updateHistogramsLater();
+        updateImageTask = scheduledExecutorService.schedule(this::updateImage, 50, TimeUnit.MILLISECONDS);
     }
 
     /**
-     * Debounce calls to updateHistogram() method.
+     * Updates the image and histogram charts.
      */
-    public void updateHistogramsLater() {
-        if (updateHistogramsTask != null && ! updateHistogramsTask.isDone()) {
-            updateHistogramsTask.cancel(false);
-        }
+    public void updateImage() {
+        Image originalImage = imagePaneController.getOriginalImage();
 
-        updateHistogramsTask = scheduledExecutorService.schedule(this::updateHistograms, 150, TimeUnit.MILLISECONDS);
+        double rFilter = componentRedController.getSlider().getValue() / 100.0;
+        double gFilter = componentGreenController.getSlider().getValue() / 100.0;
+        double bFilter = componentBlueController.getSlider().getValue() / 100.0;
+
+        ImageColorFilter colorFilter;
+
+        colorFilter = new ImageColorFilter(originalImage, rFilter, gFilter, bFilter);
+        colorFilter.filterImage();
+
+        ImageColorHistogram colorHistogram;
+
+        colorHistogram = new ImageColorHistogram();
+        colorHistogram.calculateColorHistograms(colorFilter.getImage());
+
+        if (Platform.isFxApplicationThread()) {
+            updateImageAndHistograms(colorFilter, colorHistogram);
+        } else {
+            Platform.runLater(() -> updateImageAndHistograms(colorFilter, colorHistogram));
+        }
     }
 
-    public void updateHistograms() {
-        if (! Platform.isFxApplicationThread()) {
-            Platform.runLater(this::updateHistograms);
-            return ;
-        }
+    private void updateImageAndHistograms(ImageColorFilter colorFilter, ImageColorHistogram colorHistogram) {
+        imagePaneController.setFilteredImage(colorFilter.getImage());
 
-        int[] histogramRed = new int[BUCKET_COUNT];
-        int[] histogramGreen = new int[BUCKET_COUNT];
-        int[] histogramBlue = new int[BUCKET_COUNT];
-
-        for (int i = 0; i < BUCKET_COUNT; i++) {
-            histogramRed[i] = 0;
-            histogramGreen[i] = 0;
-            histogramBlue[i] = 0;
-        }
-
-        Image image = imagePaneController.getTransformedImage();
-
-        if (image != null) {
-            final PixelReader pixelReader = image.getPixelReader();
-
-            final int width = (int) image.getWidth();
-            final int height = (int) image.getHeight();
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int argb = pixelReader.getArgb(x, y);
-
-                    int r = (argb >> 16) & 0x00ff;
-                    int g = (argb >>  8) & 0x00ff;
-                    int b = (argb      ) & 0x00ff;
-
-                    if (r > 0) {
-                        histogramRed[r - 1]++;
-                    }
-                    if (g > 0) {
-                        histogramGreen[g - 1]++;
-                    }
-                    if (b > 0) {
-                        histogramBlue[b - 1]++;
-                    }
-                }
-            }
-        }
-
-        componentRedController.updateHistogramChart(histogramRed);
-        componentGreenController.updateHistogramChart(histogramGreen);
-        componentBlueController.updateHistogramChart(histogramBlue);
+        componentRedController.updateHistogramChart(colorHistogram.getRed());
+        componentGreenController.updateHistogramChart(colorHistogram.getGreen());
+        componentBlueController.updateHistogramChart(colorHistogram.getBlue());
     }
 
     public void scaleImage() {
