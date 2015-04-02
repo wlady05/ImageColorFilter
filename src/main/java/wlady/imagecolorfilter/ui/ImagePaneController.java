@@ -15,9 +15,6 @@ import javafx.scene.control.ScrollPane;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 
 /**
  * FXML Controller class
@@ -37,9 +34,9 @@ public class ImagePaneController implements Initializable {
     private Image originalImage;
 
     /**
-     * The altered image.
+     * The filtered image.
      */
-    private Image transformedImage;
+    private Image filteredImage;
 
     public ImagePaneController() {
         // Empty
@@ -60,11 +57,11 @@ public class ImagePaneController implements Initializable {
         return originalImage;
     }
 
-    public Image getTransformedImage() {
-        return transformedImage;
+    public Image getFilteredImage() {
+        return filteredImage;
     }
 
-    public void setImage(Image image) {
+    public void setOriginalImage(Image image) {
         int width = 0;
         int height = 0;
 
@@ -79,60 +76,13 @@ public class ImagePaneController implements Initializable {
             originalImage = null;
         }
 
-        updateImage(originalImage);
+        setFilteredImage(originalImage);
     }
 
-    /**
-     * Updates the image view with altered image.
-     *
-     * @param image
-     * is the altered image
-     */
-    public void updateImage(Image image) {
-        transformedImage = image;
+    public void setFilteredImage(Image image) {
+        filteredImage = image;
 
-        imageView.setImage(transformedImage);
-    }
-
-    /**
-     * Updates the image, based on sliders values.
-     *
-     * @param redPercent
-     * @param greenPercent
-     * @param bluePercent
-     */
-    public void updateImage(final double redPercent, final double greenPercent, final double bluePercent) {
-        if (originalImage == null) {
-            return ;
-        }
-
-        final int width = (int) originalImage.getWidth();
-        final int height = (int) originalImage.getHeight();
-
-        WritableImage bufferImage = new WritableImage(width, height);
-
-        final PixelReader pixelReader = originalImage.getPixelReader();
-        final PixelWriter pixelWriter = bufferImage.getPixelWriter();
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int argb = pixelReader.getArgb(x, y);
-
-                int r = (argb >> 16) & 0x00ff;
-                int g = (argb >>  8) & 0x00ff;
-                int b = (argb      ) & 0x00ff;
-
-                r = Math.min((int) Math.round(r * redPercent), 255);
-                g = Math.min((int) Math.round(g * greenPercent), 255);
-                b = Math.min((int) Math.round(b * bluePercent), 255);
-
-                argb = (argb & 0xff000000) | (r << 16) | (g << 8) | b;
-
-                pixelWriter.setArgb(x, y, argb);
-            }
-        }
-
-        updateImage(bufferImage);
+        imageView.setImage(filteredImage);
     }
 
     public void scaleImage(boolean scale) {
