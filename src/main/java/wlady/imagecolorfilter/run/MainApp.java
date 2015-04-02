@@ -2,7 +2,7 @@
  * (c) 2015 wlady
  */
 
-package site.imagetransform;
+package wlady.imagecolorfilter.run;
 
 import javafx.fxml.FXMLLoader;
 
@@ -11,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import javafx.application.Application;
+
+import wlady.imagecolorfilter.ui.SceneController;
 
 public class MainApp extends Application {
     private SceneController sceneController;

@@ -7,7 +7,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 
-<GridPane xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="site.imagetransform.SliderPaneController">
+<GridPane xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="wlady.imagecolorfilter.ui.SliderPaneController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" />
         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
