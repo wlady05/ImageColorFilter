@@ -43,6 +43,14 @@ import wlady.imagecolorfilter.ImageColorHistogram;
  * @author wlady
  */
 public class SceneController implements Initializable {
+    public static final String[] IMAGE_FILE_EXTENSIONS =
+    {
+        "*.jpg",
+        "*.jpeg",
+        "*.gif",
+        "*.png"
+    };
+
     @FXML
     private Parent mainView;
 
@@ -59,13 +67,13 @@ public class SceneController implements Initializable {
     private ImagePaneController imagePaneController;
 
     @FXML
-    private SliderPaneController componentRedController;
+    private SliderPaneController filterRedController;
 
     @FXML
-    private SliderPaneController componentGreenController;
+    private SliderPaneController filterGreenController;
 
     @FXML
-    private SliderPaneController componentBlueController;
+    private SliderPaneController filterBlueController;
 
     /**
      * Used to schedule tasks for execution with some delay, so that the UI is more responsive.
@@ -93,17 +101,17 @@ public class SceneController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        componentRedController.getName().setText("Red");
-        componentGreenController.getName().setText("Green");
-        componentBlueController.getName().setText("Blue");
+        filterRedController.getName().setText("Red");
+        filterGreenController.getName().setText("Green");
+        filterBlueController.getName().setText("Blue");
 
-        componentRedController.getSlider().valueProperty().addListener(
+        filterRedController.getSlider().valueProperty().addListener(
                 (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
 
-        componentGreenController.getSlider().valueProperty().addListener(
+        filterGreenController.getSlider().valueProperty().addListener(
                 (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
 
-        componentBlueController.getSlider().valueProperty().addListener(
+        filterBlueController.getSlider().valueProperty().addListener(
                 (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
 
         scaleImage.selectedProperty().addListener(
@@ -117,7 +125,7 @@ public class SceneController implements Initializable {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setTitle("Open Image");
-        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.gif", "*.png"));
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image Files", IMAGE_FILE_EXTENSIONS));
 
         File file = fileChooser.showOpenDialog(mainView.getScene().getWindow());
 
@@ -166,9 +174,9 @@ public class SceneController implements Initializable {
     public void updateImage() {
         Image originalImage = imagePaneController.getOriginalImage();
 
-        double rFilter = componentRedController.getSlider().getValue() / 100.0;
-        double gFilter = componentGreenController.getSlider().getValue() / 100.0;
-        double bFilter = componentBlueController.getSlider().getValue() / 100.0;
+        double rFilter = filterRedController.getSlider().getValue() / 100.0;
+        double gFilter = filterGreenController.getSlider().getValue() / 100.0;
+        double bFilter = filterBlueController.getSlider().getValue() / 100.0;
 
         ImageColorFilter colorFilter;
 
@@ -178,7 +186,7 @@ public class SceneController implements Initializable {
         ImageColorHistogram colorHistogram;
 
         colorHistogram = new ImageColorHistogram();
-        colorHistogram.calculateColorHistograms(colorFilter.getImage());
+        colorHistogram.calculateHistograms(colorFilter.getImage());
 
         if (Platform.isFxApplicationThread()) {
             updateImageAndHistograms(colorFilter, colorHistogram);
@@ -190,9 +198,9 @@ public class SceneController implements Initializable {
     private void updateImageAndHistograms(ImageColorFilter colorFilter, ImageColorHistogram colorHistogram) {
         imagePaneController.setFilteredImage(colorFilter.getImage());
 
-        componentRedController.updateHistogramChart(colorHistogram.getRed());
-        componentGreenController.updateHistogramChart(colorHistogram.getGreen());
-        componentBlueController.updateHistogramChart(colorHistogram.getBlue());
+        filterRedController.updateHistogramChart(colorHistogram.getRed());
+        filterGreenController.updateHistogramChart(colorHistogram.getGreen());
+        filterBlueController.updateHistogramChart(colorHistogram.getBlue());
     }
 
     public void scaleImage() {

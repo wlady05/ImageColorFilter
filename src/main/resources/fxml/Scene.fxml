@@ -43,9 +43,9 @@
                                   <content>
                                       <VBox>
                                           <children>
-                                              <fx:include fx:id="componentRed" source="Scene/SliderPane.fxml" />
-                                              <fx:include fx:id="componentGreen" source="Scene/SliderPane.fxml" />
-                                              <fx:include fx:id="componentBlue" source="Scene/SliderPane.fxml" />
+                                              <fx:include fx:id="filterRed" source="Scene/SliderPane.fxml" />
+                                              <fx:include fx:id="filterGreen" source="Scene/SliderPane.fxml" />
+                                              <fx:include fx:id="filterBlue" source="Scene/SliderPane.fxml" />
                                           </children>
                                       </VBox>
                                   </content>

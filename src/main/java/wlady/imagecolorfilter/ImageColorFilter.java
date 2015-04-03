@@ -11,7 +11,12 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ImageColorFilter {
+    private static final Logger LOG = LoggerFactory.getLogger(ImageColorFilter.class);
+
     /**
      * The original image.
      */
@@ -89,6 +94,8 @@ public class ImageColorFilter {
     public void filterImage() {
         if (originalImage == null) {
             filteredImage = null;
+
+            LOG.info("filterImage(): called without image");
             return ;
         }
 
@@ -96,6 +103,11 @@ public class ImageColorFilter {
 
         pixelReader = originalImage.getPixelReader();
         pixelWriter = filteredImage.getPixelWriter();
+
+        StopWatch stopWatch;
+
+        stopWatch = new StopWatch();
+        stopWatch.start();
 
         IntStream.range(0, imageWidth * imageHeight).parallel().forEach(xy -> {
             int x = xy % imageWidth;
@@ -116,7 +128,11 @@ public class ImageColorFilter {
             pixelWriter.setArgb(x, y, argb);
         });
 
+        stopWatch.stop();
+
         pixelReader = null;
         pixelWriter = null;
+
+        LOG.info("filterImage(): called for {}x{}px image, time to complete {}", imageWidth, imageHeight, stopWatch);
     }
 }
