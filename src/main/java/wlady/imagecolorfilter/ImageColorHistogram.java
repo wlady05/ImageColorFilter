@@ -9,7 +9,12 @@ import java.util.stream.IntStream;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ImageColorHistogram {
+    private static final Logger LOG = LoggerFactory.getLogger(ImageColorHistogram.class);
+
     public static final int BUCKET_COUNT = 255;
 
     /**
@@ -36,10 +41,13 @@ public class ImageColorHistogram {
     /**
      * Calculates the color histograms for the image.
      *
+     * <p>
+     * If the {@code image} is null, the histograms will just be cleared.
+     *
      * @param image
-     * is the image, that could be {@code null}
+     * is the image
      */
-    public void calculateColorHistograms(Image image) {
+    public void calculateHistograms(Image image) {
         for (int i = 0; i < BUCKET_COUNT; i++) {
             rHistogram[i] = 0;
             gHistogram[i] = 0;
@@ -47,6 +55,7 @@ public class ImageColorHistogram {
         }
 
         if (image == null) {
+            LOG.info("calculateHistograms(): called without image");
             return ;
         }
 
@@ -55,7 +64,12 @@ public class ImageColorHistogram {
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
 
-        IntStream.range(0, width * height).forEach(xy -> {
+        StopWatch stopWatch;
+
+        stopWatch = new StopWatch();
+        stopWatch.start();
+
+        IntStream.range(0, width * height).parallel().forEach(xy -> {
             int x = xy % width;
             int y = xy / width;
 
@@ -75,6 +89,10 @@ public class ImageColorHistogram {
                 bHistogram[b - 1]++;
             }
         });
+
+        stopWatch.stop();
+
+        LOG.info("calculateHistograms(): called for {}x{}px image, time to complete {}", width, height, stopWatch);
     }
 
     public int[] getRed() {
