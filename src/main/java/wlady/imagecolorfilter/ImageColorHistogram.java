@@ -1,8 +1,30 @@
 /*
- * (c) 2015 wlady
+ * The MIT License
+ *
+ * Copyright 2015 wlady.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 package wlady.imagecolorfilter;
+
+import java.util.Arrays;
 
 import java.util.stream.IntStream;
 
@@ -12,30 +34,69 @@ import javafx.scene.image.PixelReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImageColorHistogram {
+public abstract class ImageColorHistogram {
     private static final Logger LOG = LoggerFactory.getLogger(ImageColorHistogram.class);
 
-    public static final int BUCKET_COUNT = 255;
+    /**
+     * Describes one histogram - it's name and bins count.
+     */
+    public static class Description {
+        private final String name;
+
+        private final int binCount;
+
+        public Description(String name, int binCount) {
+            this.name = name;
+            this.binCount = binCount;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getBinCount() {
+            return binCount;
+        }
+    }
 
     /**
-     * Histogram of red color.
+     * Histograms.
      */
-    int[] rHistogram;
+    protected final int[][] histograms;
 
     /**
-     * Histogram of green color.
+     * The pixel reader, that is used to read the image.
      */
-    int[] gHistogram;
+    protected PixelReader pixelReader;
 
     /**
-     * Histogram of blue color.
+     * The function, that calculates histograms.
+     *
+     * @param x
+     * @param y
      */
-    int[] bHistogram;
+    protected abstract void calculateHistograms(int x, int y);
 
-    public ImageColorHistogram() {
-        rHistogram = new int[BUCKET_COUNT];
-        gHistogram = new int[BUCKET_COUNT];
-        bHistogram = new int[BUCKET_COUNT];
+    /**
+     * Called after the histograms are calculated.
+     *
+     * <p>
+     * Could be used to make changes to or some additional processing of calculated histograms.
+     */
+    protected abstract void processHistograms();
+
+    /**
+     * The constructor.
+     *
+     * @param histogramDescriptions
+     * the description of histograms - number and bin counts
+     */
+    public ImageColorHistogram(Description[] histogramDescriptions) {
+        histograms = new int[histogramDescriptions.length][];
+
+        for (int i = 0; i < histogramDescriptions.length; i++) {
+            histograms[i] = new int[histogramDescriptions[i].getBinCount()];
+        }
     }
 
     /**
@@ -48,10 +109,8 @@ public class ImageColorHistogram {
      * is the image
      */
     public void calculateHistograms(Image image) {
-        for (int i = 0; i < BUCKET_COUNT; i++) {
-            rHistogram[i] = 0;
-            gHistogram[i] = 0;
-            bHistogram[i] = 0;
+        for (int[] histogram : histograms) {
+            Arrays.fill(histogram, 0);
         }
 
         if (image == null) {
@@ -59,7 +118,7 @@ public class ImageColorHistogram {
             return ;
         }
 
-        PixelReader pixelReader = image.getPixelReader();
+        pixelReader = image.getPixelReader();
 
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
@@ -69,41 +128,21 @@ public class ImageColorHistogram {
         stopWatch = new StopWatch();
         stopWatch.start();
 
-        IntStream.range(0, width * height).parallel().forEach(xy -> {
-            int x = xy % width;
-            int y = xy / width;
+        IntStream
+            .range(0, width * height)
+            .forEach(xy -> calculateHistograms(xy % width, xy / width));
 
-            int argb = pixelReader.getArgb(x, y);
-
-            int r = (argb >> 16) & 0x00ff;
-            int g = (argb >>  8) & 0x00ff;
-            int b = (argb      ) & 0x00ff;
-
-            if (r > 0) {
-                rHistogram[r - 1]++;
-            }
-            if (g > 0) {
-                gHistogram[g - 1]++;
-            }
-            if (b > 0) {
-                bHistogram[b - 1]++;
-            }
-        });
+        processHistograms();
 
         stopWatch.stop();
+
+        // There is no need to keep reference to this
+        pixelReader = null;
 
         LOG.info("calculateHistograms(): called for {}x{}px image, time to complete {}", width, height, stopWatch);
     }
 
-    public int[] getRed() {
-        return rHistogram;
-    }
-
-    public int[] getGreen() {
-        return gHistogram;
-    }
-
-    public int[] getBlue() {
-        return bHistogram;
+    public int[] getHistogram(int index) {
+        return histograms[index];
     }
 }

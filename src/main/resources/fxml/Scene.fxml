@@ -37,7 +37,7 @@
                         </GridPane>
                      </content>
                      </TitledPane>
-                      <TitledPane text="Color">
+                      <TitledPane text="Color (RGB)" fx:id="paneRgb">
                           <content>
                               <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
                                   <content>
@@ -46,6 +46,24 @@
                                               <fx:include fx:id="filterRed" source="Scene/SliderPane.fxml" />
                                               <fx:include fx:id="filterGreen" source="Scene/SliderPane.fxml" />
                                               <fx:include fx:id="filterBlue" source="Scene/SliderPane.fxml" />
+                                          </children>
+                                      </VBox>
+                                  </content>
+                                  <padding>
+                                      <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+                                  </padding>
+                              </ScrollPane>
+                          </content>
+                      </TitledPane>
+                      <TitledPane text="Color (HSB)" fx:id="paneHsb">
+                          <content>
+                              <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
+                                  <content>
+                                      <VBox>
+                                          <children>
+                                              <fx:include fx:id="filterHue" source="Scene/SliderPane.fxml" />
+                                              <fx:include fx:id="filterSaturation" source="Scene/SliderPane.fxml" />
+                                              <fx:include fx:id="filterBrightness" source="Scene/SliderPane.fxml" />
                                           </children>
                                       </VBox>
                                   </content>

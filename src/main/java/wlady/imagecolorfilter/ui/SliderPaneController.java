@@ -1,5 +1,25 @@
 /*
- * (c) 2015 wlady
+ * The MIT License
+ *
+ * Copyright 2015 wlady.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 package wlady.imagecolorfilter.ui;
@@ -20,8 +40,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 
 import javafx.util.converter.NumberStringConverter;
-
-import wlady.imagecolorfilter.ImageColorHistogram;
 
 /**
  * FXML Controller class
@@ -48,6 +66,19 @@ public class SliderPaneController implements Initializable {
         // Empty
     }
 
+    public void prepareChart(int binCount) {
+        series = new XYChart.Series<>();
+        seriesData = series.getData();
+
+        for (int i = 0; i < binCount; i++)  {
+            String id = String.valueOf(i);
+
+            seriesData.add(new XYChart.Data(id, 0));
+        }
+
+        histogramChart.getData().setAll(series);
+    }
+
     public Label getName() {
         return componentName;
     }
@@ -65,21 +96,10 @@ public class SliderPaneController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         componentValue.textProperty().bindBidirectional(componentSlider.valueProperty(), new NumberStringConverter("0.00"));
-
-        series = new XYChart.Series<>();
-        seriesData = series.getData();
-
-        for (int i = 1; i <= ImageColorHistogram.BUCKET_COUNT; i++)  {
-            String id = String.valueOf(i);
-
-            seriesData.add(new XYChart.Data(id, 0));
-        }
-
-        histogramChart.getData().setAll(series);
     }
 
     public void updateHistogramChart(int[] histogram) {
-        for (int i = 0; i < ImageColorHistogram.BUCKET_COUNT; i++)  {
+        for (int i = 0; i < histogram.length; i++)  {
             seriesData.get(i).setYValue(histogram[i]);
         }
     }

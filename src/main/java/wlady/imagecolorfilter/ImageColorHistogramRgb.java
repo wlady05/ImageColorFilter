@@ -24,50 +24,35 @@
 
 package wlady.imagecolorfilter;
 
-import java.util.Locale;
-import java.util.Calendar;
+public class ImageColorHistogramRgb extends ImageColorHistogram {
+    public static final Description[] HISTOGRAM_DESCRIPTION =
+    {
+        new Description("Red", 256),
+        new Description("Green", 256),
+        new Description("Blue", 256)
+    } ;
 
-import java.text.SimpleDateFormat;
-
-public class StopWatch {
-    private static final SimpleDateFormat FORMAT = new SimpleDateFormat("00:mm:ss.SSS", Locale.ENGLISH);
-
-    private long startTime = 0;
-    private long stopTime = 0;
-
-    public StopWatch() {
-        // Empty
-    }
-
-    public void start() {
-        startTime = System.nanoTime();
-    }
-
-    public void stop() {
-        stopTime = System.nanoTime();
-    }
-
-    /**
-     * Get elapsed time in milliseconds.
-     *
-     * @return
-     * elapsed time in milliseconds
-     */
-    public long getElapsedTime() {
-        return (stopTime - startTime) / 1_000_000L;
-    }
-
-    public String format(long time) {
-        Calendar cal;
-
-        cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-
-        return FORMAT.format(cal.getTime());
+    public ImageColorHistogramRgb() {
+        super(HISTOGRAM_DESCRIPTION);
     }
 
     @Override
-    public String toString() {
-        return format(getElapsedTime());
+    protected void calculateHistograms(int x, int y) {
+        int argb = pixelReader.getArgb(x, y);
+
+        int r = (argb >> 16) & 0x00ff;
+        int g = (argb >>  8) & 0x00ff;
+        int b = (argb      ) & 0x00ff;
+
+        histograms[0][r]++;
+        histograms[1][g]++;
+        histograms[2][b]++;
+    }
+
+    @Override
+    protected void processHistograms() {
+        histograms[0][0] = 0;
+        histograms[1][0] = 0;
+        histograms[2][0] = 0;
     }
 }

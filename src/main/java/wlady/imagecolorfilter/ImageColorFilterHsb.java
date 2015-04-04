@@ -24,50 +24,35 @@
 
 package wlady.imagecolorfilter;
 
-import java.util.Locale;
-import java.util.Calendar;
+import com.sun.javafx.Utils;
 
-import java.text.SimpleDateFormat;
-
-public class StopWatch {
-    private static final SimpleDateFormat FORMAT = new SimpleDateFormat("00:mm:ss.SSS", Locale.ENGLISH);
-
-    private long startTime = 0;
-    private long stopTime = 0;
-
-    public StopWatch() {
+public class ImageColorFilterHsb extends ImageColorFilter {
+    public ImageColorFilterHsb() {
         // Empty
     }
 
-    public void start() {
-        startTime = System.nanoTime();
-    }
-
-    public void stop() {
-        stopTime = System.nanoTime();
-    }
-
-    /**
-     * Get elapsed time in milliseconds.
-     *
-     * @return
-     * elapsed time in milliseconds
-     */
-    public long getElapsedTime() {
-        return (stopTime - startTime) / 1_000_000L;
-    }
-
-    public String format(long time) {
-        Calendar cal;
-
-        cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-
-        return FORMAT.format(cal.getTime());
-    }
-
     @Override
-    public String toString() {
-        return format(getElapsedTime());
+    protected void filterPixel(int x, int y) {
+        int argb = pixelReader.getArgb(x, y);
+
+        int r = (argb >> 16) & 0x00ff;
+        int g = (argb >>  8) & 0x00ff;
+        int b = (argb      ) & 0x00ff;
+
+        double[] hsb = Utils.RGBtoHSB(r / 255.0, g / 255.0, b / 255.0);
+
+        hsb[0] *= filter[0];
+        hsb[1] *= filter[1];
+        hsb[2] *= filter[2];
+
+        double[] rgb = Utils.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
+
+        r = (int) Math.round(rgb[0] * 255.0);
+        g = (int) Math.round(rgb[1] * 255.0);
+        b = (int) Math.round(rgb[2] * 255.0);
+
+        argb = (argb & 0xff000000) | (r << 16) | (g << 8) | b;
+
+        pixelWriter.setArgb(x, y, argb);
     }
 }
