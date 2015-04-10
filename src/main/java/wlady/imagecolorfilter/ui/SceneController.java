@@ -31,12 +31,8 @@ import java.net.URL;
 
 import java.util.ResourceBundle;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import javafx.beans.value.ObservableValue;
 
@@ -47,6 +43,7 @@ import javafx.fxml.Initializable;
 
 import javafx.scene.Parent;
 
+import javafx.scene.control.Accordion;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
@@ -55,11 +52,11 @@ import javafx.scene.image.Image;
 
 import javafx.stage.FileChooser;
 
-import wlady.imagecolorfilter.ImageColorFilter;
+import wlady.imagecolorfilter.TaskScheduler;
+
 import wlady.imagecolorfilter.ImageColorFilterRgb;
 import wlady.imagecolorfilter.ImageColorFilterHsb;
 
-import wlady.imagecolorfilter.ImageColorHistogram;
 import wlady.imagecolorfilter.ImageColorHistogramRgb;
 import wlady.imagecolorfilter.ImageColorHistogramHsb;
 
@@ -79,6 +76,9 @@ public class SceneController implements Initializable {
 
     @FXML
     private Parent mainView;
+
+    @FXML
+    private Accordion accordionPane;
 
     @FXML
     private TextField imageWidth;
@@ -122,25 +122,21 @@ public class SceneController implements Initializable {
     @FXML
     private SliderPaneController filterBrightnessController;
 
-    private SliderPaneController[] filterRgb;
-    private SliderPaneController[] filterHsb;
+    //
+    // Application Data
 
-    /**
-     * Used to schedule tasks for execution with some delay, so that the UI is more responsive.
-     */
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private final TaskScheduler taskScheduler;
 
-    /**
-     * Used to update image with some delay, so that the UI is more responsive.
-     */
-    private ScheduledFuture<?> updateImageTask = null;
+    private final ObjectProperty<FilterProcessor> currentFilter;
 
     public SceneController() {
-        // Empty
+        taskScheduler = new TaskScheduler();
+
+        currentFilter = new SimpleObjectProperty<>();
     }
 
     public void stop() {
-        scheduledExecutorService.shutdownNow();
+        taskScheduler.stop();
     }
 
     /**
@@ -151,40 +147,47 @@ public class SceneController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        filterRgb = new SliderPaneController[3];
-        filterHsb = new SliderPaneController[3];
+        FilterProcessor filter;
 
-        filterRgb[0] = filterRedController;
-        filterRgb[1] = filterGreenController;
-        filterRgb[2] = filterBlueController;
+        filter = new FilterProcessor(imagePaneController, filterRedController, filterGreenController, filterBlueController);
+        filter.setTaskScheduler(taskScheduler);
+        filter.setColorFilterFactory(ImageColorFilterRgb::new);
+        filter.setColorHistogramFactory(ImageColorHistogramRgb::new);
+        filter.init(ImageColorHistogramRgb.HISTOGRAM_DESCRIPTION);
 
-        for (int i = 0; i < ImageColorHistogramRgb.HISTOGRAM_DESCRIPTION.length; i++) {
-            filterRgb[i].getName().setText(ImageColorHistogramRgb.HISTOGRAM_DESCRIPTION[i].getName());
-            filterRgb[i].prepareChart(ImageColorHistogramRgb.HISTOGRAM_DESCRIPTION[i].getBinCount());
+        paneRgb.setUserData(filter);
 
-            filterRgb[i].getSlider().valueProperty().addListener(
-                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
-        }
+        filter = new FilterProcessor(imagePaneController, filterHueController, filterSaturationController, filterBrightnessController);
+        filter.setTaskScheduler(taskScheduler);
+        filter.setColorFilterFactory(ImageColorFilterHsb::new);
+        filter.setColorHistogramFactory(ImageColorHistogramHsb::new);
+        filter.init(ImageColorHistogramHsb.HISTOGRAM_DESCRIPTION);
 
-        filterHsb[0] = filterHueController;
-        filterHsb[1] = filterSaturationController;
-        filterHsb[2] = filterBrightnessController;
+        paneHsb.setUserData(filter);
 
-        for (int i = 0; i < ImageColorHistogramHsb.HISTOGRAM_DESCRIPTION.length; i++) {
-            filterHsb[i].getName().setText(ImageColorHistogramHsb.HISTOGRAM_DESCRIPTION[i].getName());
-            filterHsb[i].prepareChart(ImageColorHistogramHsb.HISTOGRAM_DESCRIPTION[i].getBinCount());
-
-            filterHsb[i].getSlider().valueProperty().addListener(
-                (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
-        }
+        currentFilter.set((FilterProcessor) paneRgb.getUserData());
+        currentFilter.addListener(
+                (ObservableValue<? extends FilterProcessor> observable, FilterProcessor oldValue, FilterProcessor newValue) -> updateImage());
 
         scaleImage.selectedProperty().addListener(
                 (ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> scaleImage());
 
-        paneRgb.setExpanded(true);
-        paneHsb.setExpanded(false);
+        accordionPane.expandedPaneProperty().addListener(
+                (ObservableValue<? extends TitledPane> observable, TitledPane oldValue, TitledPane newValue) -> changeCurrentFilter());
 
         setImage(new Image(getClass().getResourceAsStream("/image.jpg")));
+    }
+
+    public void changeCurrentFilter() {
+        TitledPane titledPane = paneRgb;
+
+        if (paneRgb.isExpanded()) {
+            titledPane = paneRgb;
+        } else if (paneHsb.isExpanded()) {
+            titledPane = paneHsb;
+        }
+
+        currentFilter.set((FilterProcessor) titledPane.getUserData());
     }
 
     @FXML
@@ -224,61 +227,13 @@ public class SceneController implements Initializable {
         updateImage();
     }
 
-    /**
-     * Debounce calls to updateImage() method.
-     */
-    public void updateImageLater() {
-        if (updateImageTask != null && ! updateImageTask.isDone()) {
-            updateImageTask.cancel(false);
-        }
-
-        updateImageTask = scheduledExecutorService.schedule(this::updateImage, 50, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * Updates the image and histogram charts.
-     */
     public void updateImage() {
-        SliderPaneController[] filterPanes;
+        FilterProcessor filter = currentFilter.get();
 
-        ImageColorFilter colorFilter;
-        ImageColorHistogram colorHistogram;
-
-        if (paneHsb.isExpanded()) {
-            filterPanes = filterHsb;
-
-            colorFilter = new ImageColorFilterHsb();
-            colorHistogram = new ImageColorHistogramHsb();
+        if (filter == null) {
+            imagePaneController.setFilteredImage(imagePaneController.getOriginalImage());
         } else {
-            filterPanes = filterRgb;
-
-            colorFilter = new ImageColorFilterRgb();
-            colorHistogram = new ImageColorHistogramRgb();
-        }
-
-        double[] filter = new double[filterPanes.length];
-
-        for (int i = 0; i < filter.length; i++) {
-            filter[i] = filterPanes[i].getSlider().getValue() / 100.0;
-        }
-
-        Image originalImage = imagePaneController.getOriginalImage();
-
-        colorFilter.filterImage(originalImage, filter);
-        colorHistogram.calculateHistograms(colorFilter.getImage());
-
-        if (Platform.isFxApplicationThread()) {
-            updateImageAndHistograms(filterPanes, colorFilter, colorHistogram);
-        } else {
-            Platform.runLater(() -> updateImageAndHistograms(filterPanes, colorFilter, colorHistogram));
-        }
-    }
-
-    private void updateImageAndHistograms(SliderPaneController[] filter, ImageColorFilter colorFilter, ImageColorHistogram colorHistogram) {
-        imagePaneController.setFilteredImage(colorFilter.getImage());
-
-        for (int i = 0; i < filter.length; i++) {
-            filter[i].updateHistogramChart(colorHistogram.getHistogram(i));
+            filter.updateImageLater();
         }
     }
 

@@ -73,7 +73,7 @@ public class SliderPaneController implements Initializable {
         for (int i = 0; i < binCount; i++)  {
             String id = String.valueOf(i);
 
-            seriesData.add(new XYChart.Data(id, 0));
+            seriesData.add(new XYChart.Data<>(id, 0));
         }
 
         histogramChart.getData().setAll(series);
