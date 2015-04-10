@@ -13,7 +13,7 @@
         <fx:include fx:id="imagePane" source="Scene/ImagePane.fxml" />
       <BorderPane>
          <center>
-              <Accordion>
+              <Accordion fx:id="accordionPane">
                   <panes>
                       <TitledPane text="Image Details">
                      <content>

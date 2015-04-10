@@ -40,24 +40,9 @@ public abstract class ImageColorFilter {
     private static final Logger LOG = LoggerFactory.getLogger(ImageColorFilter.class);
 
     /**
-     * The original image.
-     */
-    protected Image originalImage;
-
-    /**
      * Filters (each element is between 0.0 and 1.0).
      */
     protected double[] filter;
-
-    /**
-     * Image width.
-     */
-    protected int imageWidth;
-
-    /**
-     * Image height.
-     */
-    protected int imageHeight;
 
     /**
      * The filtered image;
@@ -95,30 +80,28 @@ public abstract class ImageColorFilter {
     /**
      * Filter colors of the original image.
      *
-     * @param originalImage
+     * @param image
      * is the image, that is to be filtered
      *
      * @param filter
      * are filter's parameters
      */
-    public void filterImage(Image originalImage, double[] filter) {
-        if (originalImage == null) {
+    public void filterImage(Image image, double[] filter) {
+        if (image == null) {
             filteredImage = null;
 
             LOG.info("filterImage(): called without image");
             return ;
         }
 
-        this.originalImage = originalImage;
-
-        imageWidth = (int) originalImage.getWidth();
-        imageHeight = (int) originalImage.getHeight();
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
 
         this.filter = Arrays.copyOf(filter, filter.length);
 
-        filteredImage = new WritableImage(imageWidth, imageHeight);
+        filteredImage = new WritableImage(width, height);
 
-        pixelReader = originalImage.getPixelReader();
+        pixelReader = image.getPixelReader();
         pixelWriter = filteredImage.getPixelWriter();
 
         StopWatch stopWatch;
@@ -127,9 +110,9 @@ public abstract class ImageColorFilter {
         stopWatch.start();
 
         IntStream
-            .range(0, imageWidth * imageHeight)
+            .range(0, width * height)
             .parallel()
-            .forEach(xy -> filterPixel(xy % imageWidth, xy / imageWidth));
+            .forEach(xy -> filterPixel(xy % width, xy / width));
 
         stopWatch.stop();
 
@@ -137,6 +120,6 @@ public abstract class ImageColorFilter {
         pixelReader = null;
         pixelWriter = null;
 
-        LOG.info("filterImage(): called for {}x{}px image, time to complete {}", imageWidth, imageHeight, stopWatch);
+        LOG.info("filterImage(): called for {}x{}px image, time to complete {}", width, height, stopWatch);
     }
 }
