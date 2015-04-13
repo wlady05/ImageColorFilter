@@ -24,12 +24,7 @@
 
 package wlady.imagecolorfilter.ui;
 
-import java.net.URL;
-
-import java.util.ResourceBundle;
-
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 
 import javafx.scene.control.ScrollPane;
 
@@ -41,7 +36,7 @@ import javafx.scene.image.ImageView;
  *
  * @author wlady
  */
-public class ImagePaneController implements Initializable {
+public class ImagePaneController {
     @FXML
     private ScrollPane imageContainer;
 
@@ -59,17 +54,6 @@ public class ImagePaneController implements Initializable {
     private Image filteredImage;
 
     public ImagePaneController() {
-        // Empty
-    }
-
-    /**
-     * Initializes the controller class.
-     *
-     * @param location
-     * @param resources
-     */
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
         // Empty
     }
 

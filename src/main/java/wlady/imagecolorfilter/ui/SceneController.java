@@ -27,10 +27,6 @@ package wlady.imagecolorfilter.ui;
 import java.io.File;
 import java.io.IOException;
 
-import java.net.URL;
-
-import java.util.ResourceBundle;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
@@ -39,7 +35,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 
 import javafx.scene.Parent;
 
@@ -65,7 +60,7 @@ import wlady.imagecolorfilter.ImageColorHistogramHsb;
  *
  * @author wlady
  */
-public class SceneController implements Initializable {
+public class SceneController {
     public static final String[] IMAGE_FILE_EXTENSIONS =
     {
         "*.jpg",
@@ -141,12 +136,8 @@ public class SceneController implements Initializable {
 
     /**
      * Initializes the controller class.
-     *
-     * @param location
-     * @param resources
      */
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize() {
         FilterProcessor filter;
 
         filter = new FilterProcessor(imagePaneController, filterRedController, filterGreenController, filterBlueController);
