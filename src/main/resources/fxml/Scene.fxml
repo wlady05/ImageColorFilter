@@ -43,9 +43,9 @@
                                   <content>
                                       <VBox>
                                           <children>
-                                              <fx:include fx:id="filterRed" source="Scene/SliderPane.fxml" />
-                                              <fx:include fx:id="filterGreen" source="Scene/SliderPane.fxml" />
-                                              <fx:include fx:id="filterBlue" source="Scene/SliderPane.fxml" />
+                                              <fx:include id="filterRed" fx:id="filterRed" source="Scene/SliderPane.fxml" />
+                                              <fx:include id="filterGreen" fx:id="filterGreen" source="Scene/SliderPane.fxml" />
+                                              <fx:include id="filterBlue" fx:id="filterBlue" source="Scene/SliderPane.fxml" />
                                           </children>
                                       </VBox>
                                   </content>
@@ -61,9 +61,9 @@
                                   <content>
                                       <VBox>
                                           <children>
-                                              <fx:include fx:id="filterHue" source="Scene/SliderPane.fxml" />
-                                              <fx:include fx:id="filterSaturation" source="Scene/SliderPane.fxml" />
-                                              <fx:include fx:id="filterBrightness" source="Scene/SliderPane.fxml" />
+                                              <fx:include id="filterHue" fx:id="filterHue" source="Scene/SliderPane.fxml" />
+                                              <fx:include id="filterSaturation" fx:id="filterSaturation" source="Scene/SliderPane.fxml" />
+                                              <fx:include id="filterBrightness" fx:id="filterBrightness" source="Scene/SliderPane.fxml" />
                                           </children>
                                       </VBox>
                                   </content>

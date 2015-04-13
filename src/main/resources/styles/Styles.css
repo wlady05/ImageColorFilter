@@ -1,3 +1,55 @@
 .button {
     -fx-font-weight: bold;
 }
+
+.hyperlink:visited {
+    -fx-text-fill: -fx-accent;
+}
+
+#filterRed .chart {
+    -fx-padding: 0px;
+}
+
+#filterGreen .chart {
+    -fx-padding: 0px;
+}
+
+#filterBlue .chart {
+    -fx-padding: 0px;
+}
+
+#filterHue .chart {
+    -fx-padding: 0px;
+}
+
+#filterSaturation .chart {
+    -fx-padding: 0px;
+}
+
+#filterBrightness .chart {
+    -fx-padding: 0px;
+}
+
+#filterRed .default-color0.chart-bar {
+    -fx-bar-fill: red;
+}
+
+#filterGreen .default-color0.chart-bar {
+    -fx-bar-fill: green;
+}
+
+#filterBlue .default-color0.chart-bar {
+    -fx-bar-fill: blue;
+}
+
+#filterHue .default-color0.chart-bar {
+    -fx-bar-fill: greenyellow;
+}
+
+#filterSaturation .default-color0.chart-bar {
+    -fx-bar-fill: greenyellow;
+}
+
+#filterBrightness .default-color0.chart-bar {
+    -fx-bar-fill: greenyellow;
+}
