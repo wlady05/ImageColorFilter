@@ -24,14 +24,9 @@
 
 package wlady.imagecolorfilter.ui;
 
-import java.net.URL;
-
-import java.util.ResourceBundle;
-
 import javafx.collections.ObservableList;
 
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
@@ -42,11 +37,11 @@ import javafx.scene.control.Slider;
 import javafx.util.converter.NumberStringConverter;
 
 /**
- * FXML Controller class
+ * FXML Controller class.
  *
  * @author wlady
  */
-public class SliderPaneController implements Initializable {
+public class SliderPaneController {
     @FXML
     private BarChart<String,Number> histogramChart;
 
@@ -89,12 +84,8 @@ public class SliderPaneController implements Initializable {
 
     /**
      * Initializes the controller class.
-     *
-     * @param location
-     * @param resources
      */
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize() {
         componentValue.textProperty().bindBidirectional(componentSlider.valueProperty(), new NumberStringConverter("0.00"));
     }
 
