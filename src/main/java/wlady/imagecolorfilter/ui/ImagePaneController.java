@@ -32,7 +32,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 /**
- * FXML Controller class
+ * FXML Controller class.
  *
  * @author wlady
  */

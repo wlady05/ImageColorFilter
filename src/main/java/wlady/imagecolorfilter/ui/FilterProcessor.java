@@ -30,8 +30,6 @@ import java.util.function.Supplier;
 
 import javafx.application.Platform;
 
-import javafx.beans.value.ObservableValue;
-
 import javafx.scene.image.Image;
 
 import wlady.imagecolorfilter.TaskScheduler;
@@ -75,11 +73,12 @@ public class FilterProcessor {
      */
     public void init(ImageColorHistogram.Description[] histogramDescriptions) {
         for (int i = 0; i < histogramDescriptions.length; i++) {
-            sliderPanes[i].getName().setText(histogramDescriptions[i].getName());
-            sliderPanes[i].prepareChart(histogramDescriptions[i].getBinCount());
+            final SliderPaneController sliderPane = sliderPanes[i];
 
-            sliderPanes[i].getSlider().valueProperty().addListener(
-                    (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> updateImageLater());
+            sliderPane.getName().setText(histogramDescriptions[i].getName());
+            sliderPane.prepareChart(histogramDescriptions[i].getBinCount());
+
+            sliderPane.getSlider().valueProperty().addListener((observable, oldValue, newValue) -> updateImageLater());
         }
     }
 

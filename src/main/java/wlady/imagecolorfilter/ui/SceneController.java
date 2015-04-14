@@ -30,8 +30,6 @@ import java.io.IOException;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
-import javafx.beans.value.ObservableValue;
-
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
@@ -157,14 +155,11 @@ public class SceneController {
         paneHsb.setUserData(filter);
 
         currentFilter.set((FilterProcessor) paneRgb.getUserData());
-        currentFilter.addListener(
-                (ObservableValue<? extends FilterProcessor> observable, FilterProcessor oldValue, FilterProcessor newValue) -> updateImage());
+        currentFilter.addListener((observable, oldValue, newValue) -> updateImage());
 
-        scaleImage.selectedProperty().addListener(
-                (ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> scaleImage());
+        scaleImage.selectedProperty().addListener((observable, oldValue, newValue) -> scaleImage());
 
-        accordionPane.expandedPaneProperty().addListener(
-                (ObservableValue<? extends TitledPane> observable, TitledPane oldValue, TitledPane newValue) -> changeCurrentFilter());
+        accordionPane.expandedPaneProperty().addListener((observable, oldValue, newValue) -> changeCurrentFilter());
 
         setImage(new Image(getClass().getResourceAsStream("/image.jpg")));
     }
