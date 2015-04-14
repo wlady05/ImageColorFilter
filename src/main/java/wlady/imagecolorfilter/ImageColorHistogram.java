@@ -78,14 +78,6 @@ public abstract class ImageColorHistogram {
     protected abstract void calculateHistograms(int x, int y);
 
     /**
-     * Called after the histograms are calculated.
-     *
-     * <p>
-     * Could be used to make changes to or some additional processing of calculated histograms.
-     */
-    protected abstract void processHistograms();
-
-    /**
      * The constructor.
      *
      * @param histogramDescriptions
@@ -131,8 +123,6 @@ public abstract class ImageColorHistogram {
         IntStream
             .range(0, width * height)
             .forEach(xy -> calculateHistograms(xy % width, xy / width));
-
-        processHistograms();
 
         stopWatch.stop();
 
