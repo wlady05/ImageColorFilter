@@ -47,10 +47,7 @@ public class ImageColorHistogramRgb extends ImageColorHistogram {
         histograms[0][r]++;
         histograms[1][g]++;
         histograms[2][b]++;
-    }
 
-    @Override
-    protected void processHistograms() {
         histograms[0][0] = 0;
         histograms[1][0] = 0;
         histograms[2][0] = 0;

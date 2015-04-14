@@ -64,10 +64,7 @@ public class ImageColorHistogramHsb extends ImageColorHistogram {
         histograms[0][h]++;
         histograms[1][s]++;
         histograms[2][b]++;
-    }
 
-    @Override
-    protected void processHistograms() {
         histograms[1][0] = 0;
         histograms[2][0] = 0;
     }

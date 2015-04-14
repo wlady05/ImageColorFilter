@@ -45,7 +45,7 @@ public abstract class ImageColorFilter {
     protected double[] filter;
 
     /**
-     * The filtered image;
+     * The filtered image.
      */
     protected WritableImage filteredImage;
 
